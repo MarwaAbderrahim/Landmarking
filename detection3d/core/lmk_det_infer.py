@@ -41,50 +41,33 @@ def read_test_folder(folder_path):
     return file_name_list, file_path_list
 
 
-def load_det_model(model_folder, gpu_id=0):
+def load_det_model(model_folder, gpu_id=-1):
     """ load segmentation model from folder
     :param model_folder:    the folder containing the segmentation model
     :param gpu_id:          the gpu device id to run the segmentation model
     :return: a dictionary containing the model and inference parameters
     """
-    assert os.path.isdir(model_folder), 'Model folder does not exist: {}'.format(
-        model_folder)
+    assert os.path.isdir(model_folder), 'Model folder does not exist: {}'.format(model_folder)
 
     # load inference config file
-    latest_checkpoint_dir = get_checkpoint_folder(
-        os.path.join(model_folder, 'checkpoints'), -1)
-    infer_cfg = load_config(
-        os.path.join(latest_checkpoint_dir, 'lmk_infer_config.py'))
+    latest_checkpoint_dir = get_checkpoint_folder(os.path.join(model_folder, 'checkpoints'), -1)
+    infer_cfg = load_config(os.path.join(latest_checkpoint_dir, 'lmk_infer_config.py'))
 
     model = edict()
     model.infer_cfg = infer_cfg
-    train_cfg = load_config(
-        os.path.join(latest_checkpoint_dir, 'lmk_train_config.py'))
+    train_cfg = load_config(os.path.join(latest_checkpoint_dir, 'lmk_train_config.py'))
     model.train_cfg = train_cfg
 
     # load model state
     chk_file = os.path.join(latest_checkpoint_dir, 'params.pth')
 
-    if gpu_id >= 0:
-        os.environ['CUDA_VISIBLE_DEVICES'] = '{}'.format(int(gpu_id))
-        # load network module
-        state = torch.load(chk_file)
-        net_module = importlib.import_module(
-            'detection3d.network.' + state['net'])
-        net = net_module.Net(state['in_channels'], state['num_landmark_classes'] + 1)
-        net = nn.parallel.DataParallel(net, device_ids=[0])
-        net.load_state_dict(state['state_dict'])
-        net.eval()
-        net = net.cuda()
-        del os.environ['CUDA_VISIBLE_DEVICES']
-
-    else:
-        state = torch.load(chk_file, map_location='cpu')
-        net_module = importlib.import_module(
-            'detection3d.network.' + state['net'])
-        net = net_module.Net(state['in_channels'], state['num_landmark_classes'] + 1)
-        net.load_state_dict(state['state_dict'])
-        net.eval()
+    # Load the model on CPU regardless of whether CUDA is available or not
+    state = torch.load(chk_file, map_location=torch.device('cpu'))
+    net_module = importlib.import_module('detection3d.network.' + state['net'])
+    net = net_module.Net(state['in_channels'], state['num_landmark_classes'] + 1)
+    net = nn.DataParallel(net)
+    net.load_state_dict(state['state_dict'])
+    net.eval()
 
     model.net = net
     model.crop_size, model.crop_spacing, model.max_stride, model.interpolation = \
@@ -95,27 +78,52 @@ def load_det_model(model_folder, gpu_id=0):
     model.crop_normalizers = []
     for crop_normalizer in state['crop_normalizers']:
         if crop_normalizer['type'] == 0:
-            mean, stddev, clip = crop_normalizer['mean'], crop_normalizer['stddev'], \
-                                 crop_normalizer['clip']
+            mean, stddev, clip = crop_normalizer['mean'], crop_normalizer['stddev'], crop_normalizer['clip']
             model.crop_normalizers.append(FixedNormalizer(mean, stddev, clip))
-
         elif crop_normalizer['type'] == 1:
             clip_sigma = crop_normalizer['clip_sigma']
             model.crop_normalizers.append(AdaptiveNormalizer(clip_sigma))
-
         else:
             raise ValueError('Unsupported normalization type.')
 
     return model
 
 
-def detection_voi(model, iso_image, start_voxel, end_voxel, use_gpu):
+# def detection_voi(model, iso_image, start_voxel, end_voxel, use_gpu):
+#     """ Segment the volume of interest
+#     :param model:           the loaded segmentation model.
+#     :param iso_image:       the image volume that has the same spacing with the model's resampling spacing.
+#     :param start_voxel:     the start voxel of the volume of interest (inclusive).
+#     :param end_voxel:       the end voxel of the volume of interest (exclusive).
+#     :param use_gpu:         whether to use gpu or not, bool type.
+#     :return:
+#       mean_prob_maps:        the mean probability maps of all classes
+#       std_maps:              the standard deviation maps of all classes
+#     """
+#     assert isinstance(iso_image, sitk.Image)
+
+#     roi_image = iso_image[start_voxel[0]:end_voxel[0],
+#                 start_voxel[1]:end_voxel[1], start_voxel[2]:end_voxel[2]]
+
+#     if model['crop_normalizers'] is not None:
+#         roi_image = model.crop_normalizers[0](roi_image)
+
+#     roi_image_tensor = convert_image_to_tensor(roi_image).unsqueeze(0)
+#     if use_gpu:
+#         roi_image_tensor = roi_image_tensor.cuda()
+
+#     with torch.no_grad():
+#         landmarks_pred = model['net'](roi_image_tensor)
+
+#     return landmarks_pred
+
+def detection_voi(model, iso_image, start_voxel, end_voxel, use_gpu=True):
     """ Segment the volume of interest
     :param model:           the loaded segmentation model.
     :param iso_image:       the image volume that has the same spacing with the model's resampling spacing.
     :param start_voxel:     the start voxel of the volume of interest (inclusive).
     :param end_voxel:       the end voxel of the volume of interest (exclusive).
-    :param use_gpu:         whether to use gpu or not, bool type.
+    :param use_gpu:         whether to use GPU or not (default is True).
     :return:
       mean_prob_maps:        the mean probability maps of all classes
       std_maps:              the standard deviation maps of all classes
@@ -125,15 +133,20 @@ def detection_voi(model, iso_image, start_voxel, end_voxel, use_gpu):
     roi_image = iso_image[start_voxel[0]:end_voxel[0],
                 start_voxel[1]:end_voxel[1], start_voxel[2]:end_voxel[2]]
 
-    if model['crop_normalizers'] is not None:
+    if model.crop_normalizers is not None:
         roi_image = model.crop_normalizers[0](roi_image)
 
     roi_image_tensor = convert_image_to_tensor(roi_image).unsqueeze(0)
-    if use_gpu:
+
+    # Move tensors to GPU if use_gpu is True and the model is on GPU
+    if use_gpu and next(model.net.parameters()).is_cuda:
         roi_image_tensor = roi_image_tensor.cuda()
+    # Move tensors to CPU if use_gpu is False or the model is on CPU
+    elif not use_gpu and not next(model.net.parameters()).is_cuda:
+        roi_image_tensor = roi_image_tensor.cpu()
 
     with torch.no_grad():
-        landmarks_pred = model['net'](roi_image_tensor)
+        landmarks_pred = model.net(roi_image_tensor)
 
     return landmarks_pred
 
@@ -141,7 +154,7 @@ def detection_voi(model, iso_image, start_voxel, end_voxel, use_gpu):
 def detection_single_image(image, image_name, model, gpu_id, save_prob, save_folder):
     """ volumetric segmentation for single image
     :param image: the input volume
-    :param image_name: the name of the image
+    :param image_name: the name of the 
     :param model: the detection model
     :param gpu_id: the id of the gpu
     :return: a dictionary containing the detected landmarks
@@ -161,6 +174,10 @@ def detection_single_image(image, image_name, model, gpu_id, save_prob, save_fol
     assert isinstance(iso_image, sitk.Image)
 
     start_voxel, end_voxel = [0, 0, 0], [int(iso_image.GetSize()[idx]) for idx in range(3)]
+    # Assuming gpu_id is a boolean indicating whether to use the GPU
+    use_gpu = gpu_id > 0
+
+    # Call the function with the updated argument list
     voi_landmarks_pred = detection_voi(model, iso_image, start_voxel, end_voxel, gpu_id > 0)
     print('{:0.2f}%'.format( 100))
 
