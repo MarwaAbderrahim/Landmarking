@@ -9,38 +9,23 @@ cfg = __C
 ##################################
 __C.general = {}
 
-__C.general.training_image_list_file = '/shenlab/lab_stor6/projects/CT_Dental/dataset/landmark_detection/train_server.csv'
+__C.general.training_image_list_file = r"C:\Users\MarwaABDERRAHIM\OneDrive - ABYS MEDICAL\Bureau\Landmarks\test_data2\train.csv"
 
 __C.general.validation_image_list_file = ''
 
 # landmark label starts from 1, 0 represents the background.
 __C.general.target_landmark_label = {
-    'S': 1,
-    'Gb': 2,
-    'Rh': 4,
-    'Fz-R': 5,
-    'Fz-L': 6,
-    'Ft-R': 7,
-    'Ft-L': 8,
-    'SOF-R': 15,
-    'SOF-L': 16,
-    'Ba': 21,
-    'FMP': 22,
-    'GFC-R': 23,
-    'GFC-L': 24,
-    'M-R': 27,
-    'M-L': 28,
-    'Po-R': 29,
-    'Po-L': 32,
-    'ANS': 35,
-    'PNS': 41,
-    'B': 80,
-    'Me': 83,
-    'Go-R': 95,
-    'Go-L': 101
+       "psisl":1,  
+        "asisl":2,
+        "isl":3,
+        "ps":4,
+        "isr":5,
+        "asisr":6,
+        "psisr":7,
+        "sp":8
 }
 
-__C.general.save_dir = '/shenlab/lab_stor6/qinliu/projects/CT_Dental/models/model_0529_2020_debug'
+__C.general.save_dir = r"C:\Users\MarwaABDERRAHIM\OneDrive - ABYS MEDICAL\Bureau\Landmarks\test_data2\output"
 
 __C.general.resume_epoch = -1
 
@@ -51,13 +36,13 @@ __C.general.num_gpus = 1
 ##################################
 __C.dataset = {}
 
-__C.dataset.crop_spacing = [2, 2, 2]      # mm
+__C.dataset.crop_spacing = [1, 1, 1]      # mm
 
 __C.dataset.crop_size = [96, 96, 96]   # voxel
 
 __C.dataset.sampling_size = [6, 6, 6]      # voxel
 
-__C.dataset.positive_upper_bound = 3    # voxel
+__C.dataset.positive_upper_bound = 3    # voxel  
 
 __C.dataset.negative_lower_bound = 6    # voxel
 
@@ -100,7 +85,7 @@ __C.landmark_loss = {}
 
 __C.landmark_loss.name = 'Focal'          # 'Dice', or 'Focal'
 
-__C.landmark_loss.focal_obj_alpha = [0.75] * 24  # class balancing weight for focal loss
+__C.landmark_loss.focal_obj_alpha = [0.75] * 9 # class balancing weight for focal loss
 
 __C.landmark_loss.focal_gamma = 2         # gamma in pow(1-p,gamma) for focal loss
 
