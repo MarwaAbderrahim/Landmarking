@@ -81,12 +81,13 @@ def train(config_file):
 
     batch_idx = batch_start
     data_iter = iter(train_data_loader)
+    data = next(data_iter)
 
     # loop over batches
     for i in range(len(train_data_loader)):
         begin_t = time.time()
 
-        crops, landmark_masks, landmark_coords, frames, filenames = data_iter.next()
+        crops, landmark_masks, landmark_coords, frames, filenames = data
 
         if cfg.general.num_gpus > 0:
             crops, landmark_masks, landmark_coords = \
