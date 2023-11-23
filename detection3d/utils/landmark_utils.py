@@ -12,19 +12,25 @@ def is_voxel_coordinate_valid(coord_voxel, image_size):
     return True
 
 
+import numpy as np
+
 def is_world_coordinate_valid(coord_world):
     """
     Check whether the world coordinate is valid.
     The world coordinate is invalid if it is (0, 0, 0), (1, 1, 1), or (-1, -1, -1).
     """
     coord_world_npy = np.array(coord_world)
+    coord_world_npy = np.ravel(coord_world_npy)  # ou coord_world_npy.flatten() selon votre préférence
 
+    # Vérifiez les conditions séparément et renvoyez False si l'une d'entre elles est vraie
     if np.linalg.norm(coord_world_npy, ord=1) < 1e-6 or \
-            np.linalg.norm(coord_world_npy - np.ones(3), ord=1) < 1e-6 or \
-            np.linalg.norm(coord_world_npy - -1 * np.ones(3), ord=1) < 1e-6:
+        np.isnan(coord_world_npy).any() or np.isinf(coord_world_npy).any() or \
+        np.linalg.norm(coord_world_npy - np.ones(3), ord=1) < 1e-6 or \
+        np.linalg.norm(coord_world_npy - (-1 * np.ones(3)), ord=1) < 1e-6:
         return False
 
     return True
+
 
 
 def merge_landmark_files(landmark_files, merged_landmark_file):
