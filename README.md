@@ -1,5 +1,6 @@
-# Medical-Detection3d-Toolkit
-PyTorch implementation of the volumetric landmark detection engine proposed in the paper [SkullEngine: A Multi-stage CNN Framework for Collaborative CBCT Image Segmentation and Landmark Detection](https://arxiv.org/abs/2110.03828), MICCAI workshop 2021.
+# Landmarking
+
+
 
 <p align="center">
   <img src="./assets/framework.png" alt="drawing", width="700"/>
