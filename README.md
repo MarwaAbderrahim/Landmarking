@@ -6,10 +6,10 @@ PyTorch implementation of the volumetric landmark detection engine proposed in t
 </p>
 
 ## Installation
-The code is tested with ``python=3.8.8``, ``torch=2.0.0``, and ``torchvision=0.15.0`` on an A6000 GPU.
+The code is tested with ``python=3.8.8``, ``torch=2.0.0``, and ``torchvision=0.15.0``.
 ```
-git clone https://github.com/qinliuliuqin/Medical-Detection3d-Toolkit
-cd Medical-Detection3d-Toolkit
+git clone https://github.com/MarwaAbderrahim/Landmarking.git
+cd Landmarking
 ```
 Create a new conda environment and install required packages accordingly.
 ```
@@ -39,7 +39,7 @@ python lmk_det_train.py --input ./config/lmk_train_config.py --gpus 0
 ## Evaluation
 Run the following code to evaluate a trained model on a single GPU.
 ```
-python lmk_det_infer.py -i ../assets/case_001.nii.gz -m ./saves/weights -o ./saves/results
+python lmk_det_infer.py -i "image-path/image-name.nii.gz" " -m "model path" -o "output folder path "
 ``` 
 
 ## Citation
