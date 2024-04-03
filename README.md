@@ -37,6 +37,7 @@ python lmk_det_train.py
 ## Evaluation
 Run the following code to evaluate a trained model on a single GPU.
 ```
+cd detection3d
 python lmk_det_infer.py -i "image-path/image-name.nii.gz" " -m "model path" -o "output folder path "
 ``` 
 
