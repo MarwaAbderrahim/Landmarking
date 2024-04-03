@@ -16,6 +16,16 @@ Create a new conda environment and install required packages accordingly.
 ```
 pip3 install -r requirements.txt
 ```
+## Preprocessing
+
+Use the script :"arrandissment-csv.py" in /preprocessing to rounds the values in a CSV file.
+
+To run the script, execute the following command in your terminal:
+
+```bash
+python arrandissement-csv.py -i input_folder -o output_folder --decimal-places 1
+
+Make sure to replace input_folder with the path to the folder containing the input CSV files, and output_folder with the path to the folder where you want to save the rounded CSV files. You can also adjust the number of decimal places by changing the value after the --decimal-places option.
 
 ## Data for training
 First, the users need to prepare medical images and their corresponding landmark annotations. The ``assets`` folder contains an example image (``case_001.nii.gz``) and landmark annotation file (``case_001.csv``). Then, generate landmark masks (e.g, ``case_001_landmark_mask.nii.gz``) with the folowing code :
