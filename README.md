@@ -18,14 +18,26 @@ pip3 install -r requirements.txt
 ```
 ## Preprocessing
 
-Use the script :"arrandissment-csv.py" in /preprocessing to rounds the values in a CSV file.
+### Step 1: Convert FCSV to CSV
+
+To convert the ground truth file containing landmarks of each image from the FCSV format to CSV format, use the script located in `./preprocessing/fscv-to-csv.py`:
+
+```bash
+python preprocessing/fscv-to-csv.py -i input_folder -o output_folder
+
+
+Replace input_folder with the path to the folder containing the FCSV files, and output_folder with the path to the folder where you want to save the CSV files.
+
+Step 2: Round Values in CSV
+To round the values in a CSV file, use the script named arrandissment-csv.py located in the ./preprocessing directory.
 
 To run the script, execute the following command in your terminal:
 
 ```bash
-python arrandissement-csv.py -i input_folder -o output_folder --decimal-places 1
+python preprocessing/arrandissement-csv.py -i input_folder -o output_folder --decimal-places 1
 
 Make sure to replace input_folder with the path to the folder containing the input CSV files, and output_folder with the path to the folder where you want to save the rounded CSV files. You can also adjust the number of decimal places by changing the value after the --decimal-places option.
+
 
 ## Data for training
 First, the users need to prepare medical images and their corresponding landmark annotations. The ``assets`` folder contains an example image (``case_001.nii.gz``) and landmark annotation file (``case_001.csv``). Then, generate landmark masks (e.g, ``case_001_landmark_mask.nii.gz``) with the folowing code :
