@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+sys.path.append("/workspace/Medical-Detection3d-Toolkit")
 
 from detection3d.core.lmk_det_train import train
 
@@ -22,3 +24,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
