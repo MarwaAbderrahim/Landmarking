@@ -10,7 +10,7 @@
 The code is tested with ``python=3.8.8``, ``torch=2.0.0``, and ``torchvision=0.15.0``.
 ```
 git clone https://github.com/MarwaAbderrahim/Landmarking.git
-cd Landmarking
+cd Landmarking-main
 ```
 Create a new conda environment and install required packages accordingly.
 ```
@@ -22,7 +22,7 @@ pip3 install -r requirements.txt
 ## Data for training
 First, the users need to prepare medical images and their corresponding landmark annotations. The ``assets`` folder contains an example image (``case_001.nii.gz``) and landmark annotation file (``case_001.csv``). Then, generate landmark masks (e.g, ``case_001_landmark_mask.nii.gz``) with the folowing code :
 ```
-cd Medical-Detection3d-Toolkit/detection3d/scripts/
+cd Landmarking-main/detection3d/scripts/
 python gen_landmark_mask.py
 ```
 
