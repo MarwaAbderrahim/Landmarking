@@ -64,7 +64,7 @@ P.S.: For continuous learning, modify the parameters in the ./config/lmk_train_c
 Run the following code to evaluate a trained model on a single GPU.
 ```
 cd detection3d
-python lmk_det_infer.py -i "image-path/image-name.nii.gz" " -m "model path" -o "output folder path "
+python lmk_det_infer.py -i "image path" -o "output folder path"
 ``` 
 
 ## Citation
