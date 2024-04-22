@@ -58,6 +58,7 @@ The user may need to modify training settings in ``./config/lmk_train_config.py`
 cd detection3d
 python lmk_det_train.py
 ```
+P.S.: For continuous learning, modify the parameters in the ./config/lmk_train_config.py file, located in detection3d/config. For instance, to continue training from epoch 2000 to 3000, set the parameter __C.general.resume_epoch to 2000 and modify __C.train.epochs to 3000.
 
 ## Evaluation
 Run the following code to evaluate a trained model on a single GPU.
